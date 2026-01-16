@@ -1,0 +1,24 @@
+name: Merge EPG
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours
+
+permissions:
+  contents: write
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run merger
+        run: python3 merge_epg.py
+      - name: Commit output
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs/merged.xml docs/merged.xml.gz
+          git commit -m "Auto update merged EPG" || exit 0
+          git push
